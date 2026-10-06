@@ -230,7 +230,7 @@ const DEFAULT_PRESET_TASKS = [
 
 function setupEventListeners() {
   // Task Count Change (1-5)
-  document.getElementById("selectTaskCount").addEventListener("change", e => {
+  document.getElementById("selectTaskCount")?.addEventListener("change", e => {
     const targetCount = parseInt(e.target.value, 10);
     adjustTaskCount(targetCount);
   });
@@ -239,18 +239,18 @@ function setupEventListeners() {
   document.getElementById("btnResetDefault")?.addEventListener("click", resetDefaultTasks);
 
   // Load Example Doc (หน้า 4-5)
-  document.getElementById("btnLoadExampleDoc").addEventListener("click", loadExampleDoc);
+  document.getElementById("btnLoadExampleDoc")?.addEventListener("click", loadExampleDoc);
 
   // Add Task Row
-  document.getElementById("btnAddTask").addEventListener("click", addTaskRow);
+  document.getElementById("btnAddTask")?.addEventListener("click", addTaskRow);
 
   // Calculate & Open Popup
-  document.getElementById("btnCalculate").addEventListener("click", handleCalculateAndOpenModal);
+  document.getElementById("btnCalculate")?.addEventListener("click", handleCalculateAndOpenModal);
 
   // Modal Close
-  document.getElementById("btnCloseModal").addEventListener("click", closeModal);
-  document.getElementById("btnDismissModal").addEventListener("click", closeModal);
-  document.getElementById("resultModal").addEventListener("click", e => {
+  document.getElementById("btnCloseModal")?.addEventListener("click", closeModal);
+  document.getElementById("btnDismissModal")?.addEventListener("click", closeModal);
+  document.getElementById("resultModal")?.addEventListener("click", e => {
     if (e.target.id === "resultModal") closeModal();
   });
 
@@ -262,20 +262,22 @@ function setupEventListeners() {
 
       btn.classList.add("active");
       const tabId = btn.getAttribute("data-tab");
-      document.getElementById(tabId).classList.add("active");
+      const pane = document.getElementById(tabId);
+      if (pane) pane.classList.add("active");
     });
   });
 
   // Q Tester inside Modal
-  document.getElementById("btnRunNewQ").addEventListener("click", handleTestDifferentQ);
+  document.getElementById("btnRunNewQ")?.addEventListener("click", handleTestDifferentQ);
 
   // Print & Copy
-  document.getElementById("btnPrintModal").addEventListener("click", () => window.print());
-  document.getElementById("btnCopyModal").addEventListener("click", copySummaryToClipboard);
+  document.getElementById("btnPrintModal")?.addEventListener("click", () => window.print());
+  document.getElementById("btnCopyModal")?.addEventListener("click", copySummaryToClipboard);
 }
 
 function renderTableRows() {
   const tbody = document.getElementById("taskTableBody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   tasks.forEach((t, idx) => {
@@ -344,10 +346,12 @@ function renderTableRows() {
       tasks.forEach((t, index) => {
         t.pid = `P${index + 1}`;
       });
-      document.getElementById("selectTaskCount").value = String(tasks.length);
       renderTableRows();
     });
   });
+
+  const countEl = document.getElementById("selectTaskCount");
+  if (countEl) countEl.value = String(tasks.length);
 }
 
 function adjustTaskCount(targetCount) {
