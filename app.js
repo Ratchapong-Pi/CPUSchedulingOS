@@ -225,7 +225,8 @@ const DEFAULT_PRESET_TASKS = [
   { pid: "P2", name: "รายงาน Database", at: 1, bt: 3 },
   { pid: "P3", name: "สรุป English", at: 2, bt: 1 },
   { pid: "P4", name: "แบบฝึกหัด Math", at: 4, bt: 2 },
-  { pid: "P5", name: "โครงงาน AI", at: 3, bt: 4 }
+  { pid: "P5", name: "โครงงาน AI", at: 3, bt: 4 },
+  { pid: "P6", name: "แบบฝึกหัด Computer Network", at: 1, bt: 2 }
 ];
 
 function setupEventListeners() {
@@ -356,7 +357,7 @@ function renderTableRows() {
 
 function adjustTaskCount(targetCount) {
   saveCurrentInputs();
-  targetCount = Math.min(5, Math.max(1, targetCount));
+  targetCount = Math.min(6, Math.max(1, targetCount));
   while (tasks.length < targetCount) {
     const nextIdx = tasks.length;
     const nextPid = `P${nextIdx + 1}`;
@@ -395,27 +396,19 @@ function saveCurrentInputs() {
 
 function addTaskRow() {
   saveCurrentInputs();
-  if (tasks.length >= 5) {
-    alert("ระบบรองรับจำนวนงานสูงสุด 5 งาน (ตัวเลข 0 ถึง 5)");
+  if (tasks.length >= 6) {
+    alert("ระบบรองรับจำนวนงานสูงสุด 6 งาน (P1–P6 ตามตารางในชีท)");
     return;
   }
-  const nextIdx = tasks.length;
-  const nextPid = `P${nextIdx + 1}`;
-  const nextPreset = DEFAULT_PRESET_TASKS[nextIdx] || {
-    pid: nextPid,
-    name: SUBJECT_LIST[nextIdx % SUBJECT_LIST.length],
-    at: nextIdx % 6,
-    bt: Math.min(5, Math.max(1, 5 - nextIdx))
-  };
-  tasks.push({ ...nextPreset, pid: nextPid });
-  document.getElementById("selectTaskCount").value = String(tasks.length);
-  renderTableRows();
+  adjustTaskCount(tasks.length + 1);
 }
 
 function resetDefaultTasks() {
-  tasks = JSON.parse(JSON.stringify(DEFAULT_PRESET_TASKS));
+  tasks = JSON.parse(JSON.stringify(DEFAULT_PRESET_TASKS.slice(0, 5)));
   document.getElementById("selectTaskCount").value = "5";
-  document.getElementById("selectQuantum").value = "2";
+  if (document.getElementById("selectQuantum")) {
+    document.getElementById("selectQuantum").value = "2";
+  }
   renderTableRows();
 }
 
