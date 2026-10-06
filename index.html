@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>กำหนดค่าและสุ่มโจทย์ CPU Scheduling (FCFS, SJF, Round Robin)</title>
+  <title>ระบบจัดตารางงาน CPU Scheduling (FCFS, SJF, Round Robin)</title>
   
   <!-- Google Fonts: Prompt สำหรับภาษาไทยที่ตรงตามดีไซน์ -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,50 +22,32 @@
       <!-- Section 1 Header -->
       <div class="card-header">
         <h2 class="card-title">
-          <span class="icon">⚙️</span> 1. กำหนดค่าและสุ่มโจทย์ (Input)
+          <span class="icon">⚙️</span> 1. กำหนดค่างาน (Input ตัวเลข 0–5 ไม่มีการสุ่ม)
         </h2>
       </div>
 
       <!-- Controls Row -->
       <div class="controls-row">
         <div class="control-group">
-          <label for="inputSeed">Seed สำหรับสุ่ม (ตัวเลขเท่านั้น):</label>
-          <div class="seed-input-wrapper">
-            <input type="text" id="inputSeed" value="88934" inputmode="numeric" pattern="[0-9]*" placeholder="ใส่ตัวเลข">
-            <button type="button" class="btn-apply-seed" id="btnApplySeed">ตกลง</button>
-            <button type="button" class="btn-subtle" id="btnRandomSeed">🎲 สุ่ม Seed</button>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label for="selectTaskCount">จำนวนงาน (1–10 งาน):</label>
+          <label for="selectTaskCount">จำนวนงาน (1–5 งาน):</label>
           <select id="selectTaskCount">
             <option value="1">1 งาน</option>
             <option value="2">2 งาน</option>
             <option value="3">3 งาน</option>
             <option value="4">4 งาน</option>
             <option value="5" selected>5 งาน</option>
-            <option value="6">6 งาน</option>
-            <option value="7">7 งาน</option>
-            <option value="8">8 งาน</option>
-            <option value="9">9 งาน</option>
-            <option value="10">10 งาน</option>
           </select>
         </div>
 
         <div class="control-group">
-          <label for="selectQuantum">Time Quantum (q):</label>
-          <select id="selectQuantum">
-            <option value="1">q = 1</option>
-            <option value="2" selected>q = 2</option>
-            <option value="3">q = 3</option>
-            <option value="4">q = 4</option>
-          </select>
+          <label>Time Quantum (RR):</label>
+          <div class="static-badge-q">q = 2 (ล็อกค่าคงที่)</div>
+          <input type="hidden" id="selectQuantum" value="2">
         </div>
 
         <div class="control-group btn-group-actions">
-          <button type="button" class="btn-blue" id="btnRandomizeTasks">
-            🔄 สุ่มโจทย์ใหม่
+          <button type="button" class="btn-blue" id="btnResetDefault">
+            🔄 รีเซ็ตค่าเริ่มต้น (0–5)
           </button>
           <button type="button" class="btn-cyan" id="btnLoadExampleDoc">
             📖 โหลดตัวอย่างในชีท (หน้า 4-5)
@@ -80,8 +62,8 @@
             <tr>
               <th style="width: 80px; text-align: center;">Process</th>
               <th>งาน / วิชา</th>
-              <th style="width: 140px; text-align: center;">Arrival Time<br>(AT)</th>
-              <th style="width: 140px; text-align: center;">Burst Time (BT)</th>
+              <th style="width: 140px; text-align: center;">Arrival Time<br>(AT: 0–5)</th>
+              <th style="width: 140px; text-align: center;">Burst Time<br>(BT: 1–5)</th>
               <th style="width: 70px; text-align: center;">ลบ</th>
             </tr>
           </thead>

@@ -32,26 +32,16 @@ const BADGE_COLORS = {
   IDLE: "#64748B"
 };
 
-// ข้อมูลเริ่มต้นตรงตามภาพตัวอย่างของผู้ใช้เป๊ะๆ
+// ข้อมูลเริ่มต้น (ตัวเลขคงที่ 0 ถึง 5 ทั้งหมด ไม่มีการสุ่ม)
 let tasks = [
-  { pid: "P1", name: "โปรเจกต์ Web Programming", at: 7, bt: 2 },
-  { pid: "P2", name: "สรุป English", at: 10, bt: 6 },
-  { pid: "P3", name: "โปรเจกต์ Computer Network", at: 8, bt: 3 },
-  { pid: "P4", name: "แบบฝึกหัด OS", at: 10, bt: 1 },
-  { pid: "P5", name: "แบบฝึกหัด Software Eng", at: 0, bt: 4 }
+  { pid: "P1", name: "แบบฝึกหัด OS", at: 0, bt: 5 },
+  { pid: "P2", name: "รายงาน Database", at: 1, bt: 3 },
+  { pid: "P3", name: "สรุป English", at: 2, bt: 1 },
+  { pid: "P4", name: "แบบฝึกหัด Math", at: 4, bt: 2 },
+  { pid: "P5", name: "โครงงาน AI", at: 3, bt: 4 }
 ];
 
 let lastResults = null;
-
-// PRNG Seeded
-function createRng(seed) {
-  let s = Math.abs(seed) % 2147483647;
-  if (s === 0) s = 1;
-  return function() {
-    s = (s * 16807) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
-}
 
 function getPidNum(pid) {
   const match = pid.match(/\d+/);
@@ -230,39 +220,23 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
 });
 
+const DEFAULT_PRESET_TASKS = [
+  { pid: "P1", name: "แบบฝึกหัด OS", at: 0, bt: 5 },
+  { pid: "P2", name: "รายงาน Database", at: 1, bt: 3 },
+  { pid: "P3", name: "สรุป English", at: 2, bt: 1 },
+  { pid: "P4", name: "แบบฝึกหัด Math", at: 4, bt: 2 },
+  { pid: "P5", name: "โครงงาน AI", at: 3, bt: 4 }
+];
+
 function setupEventListeners() {
-  const seedInput = document.getElementById("inputSeed");
-  
-  // ป้องกันการพิมพ์อักขระอื่นที่ไม่ใช่ตัวเลข (รับเฉพาะตัวเลข 0-9 เท่านั้น)
-  seedInput.addEventListener("input", e => {
-    e.target.value = e.target.value.replace(/\D/g, "");
-  });
-
-  // กด Enter ในช่อง Seed เพื่อยืนยัน (ตกลง) ได้ทันที
-  seedInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      handleApplySeed();
-    }
-  });
-
-  // ปุ่ม ตกลง สำหรับยืนยัน Seed
-  document.getElementById("btnApplySeed").addEventListener("click", handleApplySeed);
-
-  // ปุ่ม สุ่ม Seed
-  document.getElementById("btnRandomSeed").addEventListener("click", () => {
-    const newSeed = Math.floor(Math.random() * 90000) + 10000;
-    seedInput.value = newSeed;
-    randomizeTasks();
-  });
-
-  // Task Count Change
+  // Task Count Change (1-5)
   document.getElementById("selectTaskCount").addEventListener("change", e => {
     const targetCount = parseInt(e.target.value, 10);
     adjustTaskCount(targetCount);
   });
 
-  // Randomize Tasks
-  document.getElementById("btnRandomizeTasks").addEventListener("click", randomizeTasks);
+  // Reset to Default (0-5)
+  document.getElementById("btnResetDefault")?.addEventListener("click", resetDefaultTasks);
 
   // Load Example Doc (หน้า 4-5)
   document.getElementById("btnLoadExampleDoc").addEventListener("click", loadExampleDoc);
@@ -315,10 +289,10 @@ function renderTableRows() {
         <input type="text" class="task-name-input" data-idx="${idx}" value="${t.name}">
       </td>
       <td>
-        <input type="number" class="input-center task-at-input" data-idx="${idx}" value="${t.at}" min="0">
+        <input type="number" class="input-center task-at-input" data-idx="${idx}" value="${t.at}" min="0" max="5">
       </td>
       <td>
-        <input type="number" class="input-center task-bt-input" data-idx="${idx}" value="${t.bt}" min="1">
+        <input type="number" class="input-center task-bt-input" data-idx="${idx}" value="${t.bt}" min="1" max="5">
       </td>
       <td style="text-align: center;">
         <button type="button" class="btn-delete-row" data-idx="${idx}">ลบ</button>
@@ -328,7 +302,7 @@ function renderTableRows() {
     tbody.appendChild(tr);
   });
 
-  // Event handlers for dynamic inputs
+  // Event handlers for dynamic inputs (จำกัดตัวเลข 0 ถึง 5 อย่างเข้มงวด)
   tbody.querySelectorAll(".task-name-input").forEach(inp => {
     inp.addEventListener("input", e => {
       const i = parseInt(e.target.getAttribute("data-idx"), 10);
@@ -339,14 +313,26 @@ function renderTableRows() {
   tbody.querySelectorAll(".task-at-input").forEach(inp => {
     inp.addEventListener("input", e => {
       const i = parseInt(e.target.getAttribute("data-idx"), 10);
-      tasks[i].at = parseInt(e.target.value, 10) || 0;
+      let val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 0) val = 0;
+      if (val > 5) {
+        val = 5;
+        e.target.value = 5;
+      }
+      tasks[i].at = val;
     });
   });
 
   tbody.querySelectorAll(".task-bt-input").forEach(inp => {
     inp.addEventListener("input", e => {
       const i = parseInt(e.target.getAttribute("data-idx"), 10);
-      tasks[i].bt = parseInt(e.target.value, 10) || 1;
+      let val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 1) val = 1;
+      if (val > 5) {
+        val = 5;
+        e.target.value = 5;
+      }
+      tasks[i].bt = val;
     });
   });
 
@@ -366,10 +352,17 @@ function renderTableRows() {
 
 function adjustTaskCount(targetCount) {
   saveCurrentInputs();
+  targetCount = Math.min(5, Math.max(1, targetCount));
   while (tasks.length < targetCount) {
-    const nextPid = `P${tasks.length + 1}`;
-    const nextName = SUBJECT_LIST[tasks.length % SUBJECT_LIST.length];
-    tasks.push({ pid: nextPid, name: nextName, at: Math.floor(Math.random() * 10), bt: Math.floor(Math.random() * 6) + 1 });
+    const nextIdx = tasks.length;
+    const nextPid = `P${nextIdx + 1}`;
+    const nextPreset = DEFAULT_PRESET_TASKS[nextIdx] || {
+      pid: nextPid,
+      name: SUBJECT_LIST[nextIdx % SUBJECT_LIST.length],
+      at: (nextIdx % 6),
+      bt: ((nextIdx % 5) + 1)
+    };
+    tasks.push({ ...nextPreset, pid: nextPid });
   }
   while (tasks.length > targetCount) {
     tasks.pop();
@@ -382,8 +375,13 @@ function saveCurrentInputs() {
   rows.forEach((tr, i) => {
     if (tasks[i]) {
       const name = tr.querySelector(".task-name-input").value;
-      const at = parseInt(tr.querySelector(".task-at-input").value, 10) || 0;
-      const bt = parseInt(tr.querySelector(".task-bt-input").value, 10) || 1;
+      let at = parseInt(tr.querySelector(".task-at-input").value, 10);
+      let bt = parseInt(tr.querySelector(".task-bt-input").value, 10);
+      if (isNaN(at) || at < 0) at = 0;
+      if (at > 5) at = 5;
+      if (isNaN(bt) || bt < 1) bt = 1;
+      if (bt > 5) bt = 5;
+
       tasks[i].name = name;
       tasks[i].at = at;
       tasks[i].bt = bt;
@@ -393,59 +391,27 @@ function saveCurrentInputs() {
 
 function addTaskRow() {
   saveCurrentInputs();
-  if (tasks.length >= 10) {
-    alert("ระบบรองรับจำนวนงานสูงสุด 10 งาน");
+  if (tasks.length >= 5) {
+    alert("ระบบรองรับจำนวนงานสูงสุด 5 งาน (ตัวเลข 0 ถึง 5)");
     return;
   }
-  const nextPid = `P${tasks.length + 1}`;
-  const nextName = SUBJECT_LIST[tasks.length % SUBJECT_LIST.length];
-  tasks.push({ pid: nextPid, name: nextName, at: 0, bt: 3 });
+  const nextIdx = tasks.length;
+  const nextPid = `P${nextIdx + 1}`;
+  const nextPreset = DEFAULT_PRESET_TASKS[nextIdx] || {
+    pid: nextPid,
+    name: SUBJECT_LIST[nextIdx % SUBJECT_LIST.length],
+    at: nextIdx % 6,
+    bt: Math.min(5, Math.max(1, 5 - nextIdx))
+  };
+  tasks.push({ ...nextPreset, pid: nextPid });
   document.getElementById("selectTaskCount").value = String(tasks.length);
   renderTableRows();
 }
 
-function handleApplySeed() {
-  const seedInput = document.getElementById("inputSeed");
-  const seedStr = seedInput.value.trim();
-
-  if (!seedStr || !/^\d+$/.test(seedStr)) {
-    alert("กรุณากรอก Seed เป็นตัวเลขเท่านั้น (ใส่เลขอะไรก็ได้แต่ต้องเป็นตัวเลข)");
-    seedInput.focus();
-    return;
-  }
-
-  randomizeTasks();
-}
-
-function randomizeTasks() {
-  const seedInput = document.getElementById("inputSeed");
-  const seedStr = seedInput.value.trim();
-
-  if (!seedStr || !/^\d+$/.test(seedStr)) {
-    alert("กรุณากรอก Seed เป็นตัวเลขเท่านั้น (ใส่เลขอะไรก็ได้แต่ต้องเป็นตัวเลข)");
-    seedInput.focus();
-    return;
-  }
-
-  const seed = parseInt(seedStr, 10);
-  const count = parseInt(document.getElementById("selectTaskCount").value, 10) || 5;
-  const rng = createRng(seed);
-
-  const shuffledNames = [...SUBJECT_LIST].sort(() => rng() - 0.5);
-
-  tasks = [];
-  for (let i = 0; i < count; i++) {
-    const pid = `P${i + 1}`;
-    const name = shuffledNames[i] || `วิชาที่ ${i + 1}`;
-    const at = Math.floor(rng() * 11);
-    const bt = Math.floor(rng() * 8) + 1;
-    tasks.push({ pid, name, at, bt });
-  }
-
-  // Ensure at least one has AT = 0
-  const zeroIdx = Math.floor(rng() * count);
-  tasks[zeroIdx].at = 0;
-
+function resetDefaultTasks() {
+  tasks = JSON.parse(JSON.stringify(DEFAULT_PRESET_TASKS));
+  document.getElementById("selectTaskCount").value = "5";
+  document.getElementById("selectQuantum").value = "2";
   renderTableRows();
 }
 
@@ -473,19 +439,16 @@ function handleCalculateAndOpenModal() {
     return;
   }
 
-  const q = parseInt(document.getElementById("selectQuantum").value, 10);
-  if (isNaN(q) || q < 1 || q > 4) {
-    alert("Time Quantum (q) ต้องอยู่ระหว่าง 1 ถึง 4");
-    return;
-  }
+  const qEl = document.getElementById("selectQuantum");
+  const q = qEl ? (parseInt(qEl.value, 10) || 2) : 2;
 
   for (const t of tasks) {
-    if (t.bt <= 0) {
-      alert(`งาน ${t.pid} มี Burst Time (BT) = ${t.bt} ซึ่งไม่ถูกต้อง (BT ต้องมากกว่า 0)`);
+    if (isNaN(t.bt) || t.bt < 1 || t.bt > 5) {
+      alert(`งาน ${t.pid} มี Burst Time (BT) = ${t.bt} ซึ่งไม่ถูกต้อง (BT ต้องอยู่ระหว่าง 1 ถึง 5)`);
       return;
     }
-    if (t.at < 0) {
-      alert(`งาน ${t.pid} มี Arrival Time (AT) ติดลบ`);
+    if (isNaN(t.at) || t.at < 0 || t.at > 5) {
+      alert(`งาน ${t.pid} มี Arrival Time (AT) = ${t.at} ซึ่งไม่ถูกต้อง (AT ต้องอยู่ระหว่าง 0 ถึง 5)`);
       return;
     }
   }
