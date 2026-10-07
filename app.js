@@ -291,10 +291,10 @@ function renderTableRows() {
         <input type="text" class="task-name-input" data-idx="${idx}" value="${t.name}">
       </td>
       <td>
-        <input type="number" class="input-center task-at-input" data-idx="${idx}" value="${t.at}" min="0" max="20">
+        <input type="number" class="input-center task-at-input" data-idx="${idx}" value="${t.at}" min="0">
       </td>
       <td>
-        <input type="number" class="input-center task-bt-input" data-idx="${idx}" value="${t.bt}" min="1" max="20">
+        <input type="number" class="input-center task-bt-input" data-idx="${idx}" value="${t.bt}" min="1">
       </td>
       <td style="text-align: center;">
         <button type="button" class="btn-delete-row" data-idx="${idx}">ลบ</button>
@@ -304,7 +304,7 @@ function renderTableRows() {
     tbody.appendChild(tr);
   });
 
-  // Event handlers for dynamic inputs (อนุญาตให้ใส่ตัวเลขได้สูงสุด 20)
+  // Event handlers for dynamic inputs (กรอกตัวเลขได้อิสระ)
   tbody.querySelectorAll(".task-name-input").forEach(inp => {
     inp.addEventListener("input", e => {
       const i = parseInt(e.target.getAttribute("data-idx"), 10);
@@ -317,10 +317,6 @@ function renderTableRows() {
       const i = parseInt(e.target.getAttribute("data-idx"), 10);
       let val = parseInt(e.target.value, 10);
       if (isNaN(val) || val < 0) val = 0;
-      if (val > 20) {
-        val = 20;
-        e.target.value = 20;
-      }
       tasks[i].at = val;
     });
   });
@@ -330,10 +326,6 @@ function renderTableRows() {
       const i = parseInt(e.target.getAttribute("data-idx"), 10);
       let val = parseInt(e.target.value, 10);
       if (isNaN(val) || val < 1) val = 1;
-      if (val > 20) {
-        val = 20;
-        e.target.value = 20;
-      }
       tasks[i].bt = val;
     });
   });
@@ -382,9 +374,7 @@ function saveCurrentInputs() {
       let at = parseInt(tr.querySelector(".task-at-input").value, 10);
       let bt = parseInt(tr.querySelector(".task-bt-input").value, 10);
       if (isNaN(at) || at < 0) at = 0;
-      if (at > 20) at = 20;
       if (isNaN(bt) || bt < 1) bt = 1;
-      if (bt > 20) bt = 20;
 
       tasks[i].name = name;
       tasks[i].at = at;
@@ -432,7 +422,9 @@ function loadExampleDoc() {
     { pid: "P4", name: "แบบฝึกหัด Math", at: 4, bt: 2 }
   ];
   document.getElementById("selectTaskCount").value = "4";
-  document.getElementById("selectQuantum").value = "2";
+  if (document.getElementById("selectQuantum")) {
+    document.getElementById("selectQuantum").value = "2";
+  }
   renderTableRows();
 }
 
@@ -452,12 +444,12 @@ function handleCalculateAndOpenModal() {
   const q = qEl ? (parseInt(qEl.value, 10) || 2) : 2;
 
   for (const t of tasks) {
-    if (isNaN(t.bt) || t.bt < 1 || t.bt > 20) {
-      alert(`งาน ${t.pid} มี Burst Time (BT) = ${t.bt} ซึ่งไม่ถูกต้อง (BT ต้องอยู่ระหว่าง 1 ถึง 20)`);
+    if (isNaN(t.bt) || t.bt < 1) {
+      alert(`งาน ${t.pid} มี Burst Time (BT) = ${t.bt} ซึ่งไม่ถูกต้อง (BT ต้องมากกว่า 0)`);
       return;
     }
-    if (isNaN(t.at) || t.at < 0 || t.at > 20) {
-      alert(`งาน ${t.pid} มี Arrival Time (AT) = ${t.at} ซึ่งไม่ถูกต้อง (AT ต้องอยู่ระหว่าง 0 ถึง 20)`);
+    if (isNaN(t.at) || t.at < 0) {
+      alert(`งาน ${t.pid} มี Arrival Time (AT) = ${t.at} ซึ่งไม่ถูกต้อง (AT ต้องไม่ติดลบ)`);
       return;
     }
   }
