@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
       <!-- Section 1 Header -->
       <div class="card-header">
         <h2 class="card-title">
-          <span class="icon">⚙️</span> 1. กำหนดค่างาน (สุ่มตัวเลข 0–5)
+          <span class="icon">⚙️</span> 1. กำหนดค่างาน (Input & สุ่มตัวเลข)
         </h2>
       </div>
 
@@ -48,7 +48,7 @@
 
         <div class="control-group btn-group-actions">
           <button type="button" class="btn-blue" id="btnRandomizeTasks">
-            🎲 สุ่มตัวเลขใหม่ (0–5)
+            🎲 สุ่มตัวเลข
           </button>
           <button type="button" class="btn-cyan" id="btnLoadExampleDoc">
             📖 โหลดตัวอย่างในชีท (หน้า 4-5)
@@ -63,8 +63,8 @@
             <tr>
               <th style="width: 80px; text-align: center;">Process</th>
               <th>งาน / วิชา</th>
-              <th style="width: 140px; text-align: center;">Arrival Time<br>(AT: 0–5)</th>
-              <th style="width: 140px; text-align: center;">Burst Time<br>(BT: 1–5)</th>
+              <th style="width: 140px; text-align: center;">Arrival Time<br>(AT)</th>
+              <th style="width: 140px; text-align: center;">Burst Time<br>(BT)</th>
               <th style="width: 70px; text-align: center;">ลบ</th>
             </tr>
           </thead>
@@ -291,6 +291,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
