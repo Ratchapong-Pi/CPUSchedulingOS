@@ -216,7 +216,7 @@ function runRoundRobin(procs, q) {
 // ==============================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  renderTableRows();
+  randomizeTasks();
   setupEventListeners();
 });
 
@@ -230,10 +230,24 @@ const DEFAULT_PRESET_TASKS = [
 ];
 
 function setupEventListeners() {
-  // Task Count Change (1-5)
+  // Seed Confirm
+  document.getElementById("btnApplySeed")?.addEventListener("click", handleApplySeed);
+  document.getElementById("inputSeed")?.addEventListener("keydown", e => {
+    if (e.key === "Enter") handleApplySeed();
+  });
+  document.getElementById("inputSeed")?.addEventListener("input", e => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+  });
+
+  // Random Seed
+  document.getElementById("btnRandomSeed")?.addEventListener("click", handleRandomSeed);
+
+  // Randomize Tasks Button
+  document.getElementById("btnRandomizeTasks")?.addEventListener("click", randomizeTasks);
+
+  // Task Count Change (1-6)
   document.getElementById("selectTaskCount")?.addEventListener("change", e => {
-    const targetCount = parseInt(e.target.value, 10);
-    adjustTaskCount(targetCount);
+    randomizeTasks();
   });
 
   // Reset to Default (0-5)
@@ -241,9 +255,6 @@ function setupEventListeners() {
 
   // Load Example Doc (หน้า 4-5)
   document.getElementById("btnLoadExampleDoc")?.addEventListener("click", loadExampleDoc);
-
-  // Add Task Row
-  document.getElementById("btnAddTask")?.addEventListener("click", addTaskRow);
 
   // Calculate & Open Popup
   document.getElementById("btnCalculate")?.addEventListener("click", handleCalculateAndOpenModal);
@@ -394,22 +405,77 @@ function saveCurrentInputs() {
   });
 }
 
-function addTaskRow() {
-  saveCurrentInputs();
-  if (tasks.length >= 6) {
-    alert("ระบบรองรับจำนวนงานสูงสุด 6 งาน (P1–P6 ตามตารางในชีท)");
+function createRng(seed) {
+  let s = seed % 2147483647;
+  if (s <= 0) s += 2147483646;
+  return function() {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+function handleApplySeed() {
+  const seedInput = document.getElementById("inputSeed");
+  const seedStr = seedInput ? seedInput.value.trim() : "";
+
+  if (!seedStr || !/^\d+$/.test(seedStr)) {
+    alert("กรุณากรอก Seed เป็นตัวเลขเท่านั้น");
+    if (seedInput) seedInput.focus();
     return;
   }
-  adjustTaskCount(tasks.length + 1);
+
+  randomizeTasks();
+}
+
+function handleRandomSeed() {
+  const newSeed = Math.floor(Math.random() * 90000) + 10000;
+  const seedInput = document.getElementById("inputSeed");
+  if (seedInput) seedInput.value = String(newSeed);
+  randomizeTasks();
+}
+
+function randomizeTasks() {
+  const seedInput = document.getElementById("inputSeed");
+  const seedStr = seedInput ? seedInput.value.trim() : "42";
+
+  if (!seedStr || !/^\d+$/.test(seedStr)) {
+    alert("กรุณากรอก Seed เป็นตัวเลขเท่านั้น");
+    if (seedInput) seedInput.focus();
+    return;
+  }
+
+  const seed = parseInt(seedStr, 10);
+  const countEl = document.getElementById("selectTaskCount");
+  const count = countEl ? (parseInt(countEl.value, 10) || 5) : 5;
+  const rng = createRng(seed);
+
+  const shuffledNames = [...SUBJECT_LIST].sort(() => rng() - 0.5);
+
+  tasks = [];
+  for (let i = 0; i < count; i++) {
+    const pid = `P${i + 1}`;
+    const name = shuffledNames[i] || `วิชาที่ ${i + 1}`;
+    // สุ่มเลขแค่ 0 ถึง 5 ตามที่ผู้ใช้สั่งอย่างเคร่งครัด
+    const at = Math.floor(rng() * 6);       // AT: 0, 1, 2, 3, 4, 5
+    const bt = Math.floor(rng() * 5) + 1;   // BT: 1, 2, 3, 4, 5
+    tasks.push({ pid, name, at, bt });
+  }
+
+  // ตามกติกาหน้า 2 ของชีทอาจารย์: กำหนดอย่างน้อยหนึ่งงานมี AT = 0
+  const zeroIdx = Math.floor(rng() * count);
+  tasks[zeroIdx].at = 0;
+
+  renderTableRows();
 }
 
 function resetDefaultTasks() {
-  tasks = JSON.parse(JSON.stringify(DEFAULT_PRESET_TASKS.slice(0, 5)));
+  const seedInput = document.getElementById("inputSeed");
+  if (seedInput) seedInput.value = "42";
   document.getElementById("selectTaskCount").value = "5";
   if (document.getElementById("selectQuantum")) {
     document.getElementById("selectQuantum").value = "2";
   }
-  renderTableRows();
+  randomizeTasks();
 }
 
 function loadExampleDoc() {

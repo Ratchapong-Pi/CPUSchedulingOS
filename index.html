@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -22,12 +22,21 @@
       <!-- Section 1 Header -->
       <div class="card-header">
         <h2 class="card-title">
-          <span class="icon">⚙️</span> 1. กำหนดค่างาน (Input ตัวเลข 0–5 ไม่มีการสุ่ม)
+          <span class="icon">⚙️</span> 1. กำหนดค่างานและสุ่มโจทย์ (สุ่มเลข 0–5)
         </h2>
       </div>
 
       <!-- Controls Row -->
       <div class="controls-row">
+        <div class="control-group">
+          <label for="inputSeed">Seed สำหรับสุ่ม:</label>
+          <div class="seed-input-wrapper">
+            <input type="text" id="inputSeed" value="42" inputmode="numeric" pattern="[0-9]*" placeholder="ตัวเลข">
+            <button type="button" class="btn-apply-seed" id="btnApplySeed">ตกลง</button>
+            <button type="button" class="btn-subtle" id="btnRandomSeed">🎲 สุ่ม Seed</button>
+          </div>
+        </div>
+
         <div class="control-group">
           <label for="selectTaskCount">จำนวนงาน (ตามชีท 1–6 งาน):</label>
           <select id="selectTaskCount">
@@ -47,8 +56,8 @@
         </div>
 
         <div class="control-group btn-group-actions">
-          <button type="button" class="btn-blue" id="btnResetDefault">
-            🔄 รีเซ็ตค่าเริ่มต้น (0–5)
+          <button type="button" class="btn-blue" id="btnRandomizeTasks">
+            🎲 สุ่มโจทย์ใหม่ (0–5)
           </button>
           <button type="button" class="btn-cyan" id="btnLoadExampleDoc">
             📖 โหลดตัวอย่างในชีท (หน้า 4-5)
@@ -291,6 +300,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
