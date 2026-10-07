@@ -41,9 +41,13 @@
         </div>
 
         <div class="control-group">
-          <label>Time Quantum (RR):</label>
-          <div class="static-badge-q">q = 2 (ล็อกค่าคงที่)</div>
-          <input type="hidden" id="selectQuantum" value="2">
+          <label for="selectQuantum">Time Quantum (RR):</label>
+          <select id="selectQuantum">
+            <option value="1">q = 1</option>
+            <option value="2" selected>q = 2</option>
+            <option value="3">q = 3</option>
+            <option value="4">q = 4</option>
+          </select>
         </div>
 
         <div class="control-group btn-group-actions">
@@ -291,6 +295,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
